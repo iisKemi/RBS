@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="MizGameCSS.css">
+<link rel="stylesheet" type="text/css" href="/MizGameCSS.css">
 
 
 <title>Shoot, Block, Reload!</title>
@@ -12,6 +12,11 @@
 	<div class="score" id="score2">Player 2 : 0</div>
 	</oddGrid>
 	
+	<buttonSection>
+	<button class="score" onclick="selectPlayer1()">Player 1</button>
+	<button class="score" onclick="selectPlayer2()">Player 2</button>
+	</buttonSection>
+	
 	<oddGrid>
 	<logGrid>
 	<div class="score" id="p2Log">...</div>
@@ -24,6 +29,8 @@
 	</logGrid>
 	</oddGrid>
 	
+	
+	
 	<buttonSection>
 	<button class="button1" onclick="selectShoot()">Shoot!</button>
 	<button class="button1" onclick="selectBlock()">Block!</button>
@@ -32,4 +39,8 @@
 	
 </div>
 
+
+<script src="/socket.io/socket.io.js"></script>
 <script src="mizGameJS.js"></script>
+<script src="index.js"></script>
+

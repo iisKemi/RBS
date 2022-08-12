@@ -1,9 +1,8 @@
-let p1Pick, whoKilled,p2Pick,cpuPick;
-let p1Ammo = 0;
-let p2Ammo = 0;
-let turn = 0;
+let pick;
 
 let p1Log = document.getElementById("p1Log");
+let p2Log = document.getElementById("p2Log");
+
 
 let p1ScorePrint = document.getElementById("score1");
 let p2ScorePrint = document.getElementById("score2");
@@ -13,109 +12,64 @@ const block = 1;
 const reload = 2;
 const noAmmo = 3;
 
-
-let p1Score = 0;
-let p2Score = 0;
-
-
+var socket = io();
 
 function selectShoot() {
-	p1Pick = shoot;
-	cpuPick = cpu();
-	p1Shoot(p1Pick, cpuPick);
+	pick = shoot;
+	socket.emit('choice', socket.id, pick);
 }
 	
-
 function selectBlock() {	
-	p1Pick = block;
-	cpuPick = cpu();
-	p1Log.innerHTML = "Player 1 blocked!";
+	pick = block;
+	socket.emit('choice', socket.id, pick);
 }
 
 function selectReload() {
-	p1Pick = reload;
-	cpuPick = cpu();
-	p1Reload(p1Pick, cpuPick);
+	pick = reload;
+	socket.emit('choice', socket.id, pick);
 }
 
-function p1Shoot(p1Pick,cpuPick) {
-	if(p1Ammo >= 1) {
-		p1Log.innerHTML = "Player 1 shoots!";
-		if(p1Pick == shoot && cpuPick == shoot) {
-			death(0);
-		}
-		else if(p1Pick == shoot && cpuPick == block) {
-			p1Ammo -= 1;
-		}
-		else if(p1Pick == shoot && (cpuPick == reload || cpuPick == noAmmo)) {
-			death(1);
-		}
+socket.on('player picks', (p1Pick, p2Pick) => {
+	console.log('Player 1 picked ' + p1Pick + " | Player 2 picked " + p2Pick);
+	
+	//Player 1
+	if(p1Pick == shoot) {
+		p1Log.innerHTML = "Player 1 shot!";
+		console.log('Player 1 picked shoot');
 	}
-	else if(p1Ammo == 0) {
-		p1Log.innerHTML = "Player 1 tried to shoot without ammo!";
-		if(p1Pick == shoot && cpuPick == shoot) {
-			death(2);
-		}
+	else if(p1Pick == block) {
+		p1Log.innerHTML = "Player 1 blocked!";
+		console.log('Player 1 picked block');
 	}
-}
-
-function p1Reload(p1Pick, cpuPick) {
-	if(p1Pick == reload && cpuPick == shoot) {
-		death(2);
-	}
-	else if(p1Pick == reload && (cpuPick == block || cpuPick == reload)) {
+	else if(p1Pick == reload) {
 		p1Log.innerHTML = "Player 1 reloaded!";
-		p1Ammo += 1;
-		console.log(p1Ammo);
+		console.log('Player 1 picked reload');
 	}
-}
-
-function death(whoKilled) {
-	if (whoKilled == 1) {
-		p1Score += 1;
-	}
-	else if (whoKilled == 2) {
-		p2Score += 1;
-	}
-	else {
-		p1Score += 1;
-		p2Score += 1;
+	else if(p1Pick == noAmmo) {
+		p1Log.innerHTML = "Player 1 has no ammo to shoot!";
+		console.log('Player 1 picked no ammo');
 	}
 	
-	p1ScorePrint.innerHTML = "Player 1 Score : " + p1Score;
-	p2ScorePrint.innerHTML = "Player 2 Score : " + p2Score;
-	
-	p1Ammo = 0;
-	p2Ammo = 0;
-}
-
-function cpu() {
-	const p2Log = document.getElementById("p2Log");
-	
-	if (p2Ammo == 0) {
-		p2Pick = Math.floor(Math.random() * 2 + 1);
-		if(p2Pick == reload) {
-			p2Ammo += 1;
-			p2Log.innerHTML = "Player 2 reloaded!";
-			return p2Pick;
-		}
+	//Player 2
+	if(p2Pick == shoot) {
+		p2Log.innerHTML = "Player 2 shot!";
+		console.log('Player 2 picked shoot');
+	}
+	else if(p2Pick == block) {
 		p2Log.innerHTML = "Player 2 blocked!";
-		return p2Pick;
+		console.log('Player 2 picked block');
 	}
-	else if (p2Ammo > 0) {
-		p2Pick = Math.floor(Math.random() * 3);
-		if(p2Pick == shoot) {
-			p2Ammo -= 1;
-			p2Log.innerHTML = "Player 2 shoots!";
-			return p2Pick;
-		}
-		else if(p2Pick == reload) {
-			p2Ammo += 1;
-			p2Log.innerHTML = "Player 2 reloaded!";
-			return p2Pick;
-		}
-		p2Log.innerHTML = "Player 2 blocked!";
-		return p2Pick;
+	else if(p2Pick == reload) {
+		p2Log.innerHTML = "Player 2 reloaded!";
+		console.log('Player 2 picked reload');
 	}
-}
+	else if(p2Pick == noAmmo) {
+		p2Log.innerHTML = "Player 2 has no ammo to shoot!";
 
+	}
+});
+
+socket.on('score', (p1Score, p2Score) => {
+	p1ScorePrint.innerHTML = "Player 1 : " + p1Score;
+	p2ScorePrint.innerHTML = "Player 2 : " + p2Score;
+});
